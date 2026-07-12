@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل صدور گواهی | واحد یادگار امام (ره)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --iau-navy: #002d62; 
+            --iau-blue: #0056b3; 
+            --bg-color: #eef2f5;
+        }
+        body { 
+            font-family: 'Vazirmatn', Tahoma, sans-serif; 
+            background: var(--bg-color); 
+            display: flex; 
+            justify-content: center; 
+            padding: 40px 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .container { 
+            width: 100%; 
+            max-width: 800px; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            border-top: 6px solid var(--iau-navy);
+            box-sizing: border-box;
+        }
+        .header-title { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        h1 { color: var(--iau-navy); font-size: 20px; margin: 0 0 10px 0; line-height: 1.6; }
+        .subtitle { font-size: 14px; color: #666; margin: 0; }
+        
+        .section-title { 
+            color: var(--iau-navy); 
+            font-size: 16px; 
+            border-bottom: 2px solid #eef2f5; 
+            padding-bottom: 10px; 
+            margin-bottom: 25px; 
+            font-weight: bold;
+        }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .full-width { grid-column: 1 / -1; }
+        
+        label { display: block; font-size: 13px; color: #444; margin-bottom: 8px; font-weight: bold; }
+        input, select { 
+            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; 
+            font-size: 14px; font-family: 'Vazirmatn', Tahoma, sans-serif; box-sizing: border-box; transition: 0.3s;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--iau-blue); box-shadow: 0 0 5px rgba(0,86,179,0.1); }
+        
+        .date-dropdown-group { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 15px; 
+        }
+
+        button { 
+            width: 100%; padding: 14px; background: var(--iau-navy); color: white; border: none; 
+            border-radius: 4px; font-size: 15px; font-family: 'Vazirmatn', Tahoma, sans-serif; font-weight: bold; cursor: pointer; transition: 0.3s;
+            margin-top: 10px;
+        }
+        button:hover { background: var(--iau-blue); }
+        
+        #search-status { font-size: 11px; margin-right: 10px; font-weight: normal; }
+
+        .footer { margin-top: 40px; font-size: 12px; color: #777; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 25px 15px; }
+            .form-grid, .date-dropdown-group { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-title">
+            <h1>سامانه اتوماسیون صدور گواهی اشتغال به تحصیل</h1>
+            <p class="subtitle">دانشگاه آزاد اسلامی - واحد یادگار امام خمینی (ره)</p>
+        </div>
+        
+        <div class="section-title">فرم صدور گواهی جدید</div>
+        
+        <div class="form-grid">
+            <div>
+                <label>شماره دانشجویی: <span id="search-status"></span></label>
+                <input id="id" class="persian-num" placeholder="شماره دانشجویی را وارد کنید">
+            </div>
+            <div>
+                <label>نام و نام خانوادگی دانشجو:</label>
+                <input id="name" placeholder="نام کامل دانشجو">
+            </div>
+            <div>
+                <label>مقطع تحصیلی:</label>
+                <select id="degree">
+                    <option value="کاردانی">کاردانی</option>
+                    <option value="کارشناسی" selected>کارشناسی</option>
+                    <option value="کارشناسی ارشد">کارشناسی ارشد</option>
+                    <option value="دکتری تخصصی">دکتری تخصصی</option>
+                    <option value="دکتری حرفه‌ای">دکتری حرفه‌ای</option>
+                </select>
+            </div>
+            <div>
+                <label>رشته تحصیلی:</label>
+                <input id="major" placeholder="عنوان دقیق رشته تحصیلی">
+            </div>
+            <div class="full-width">
+                <label>نام سازمان / ارگان گیرنده گواهی:</label>
+                <input id="organization" placeholder="مثال: سازمان نظام وظیفه، سفارت، اداره کار...">
+            </div>
+            <div class="full-width">
+                <label>تاریخ صدور گواهی:</label>
+                <div class="date-dropdown-group">
+                    <div>
+                        <select id="year"></select>
+                    </div>
+                    <div>
+                        <select id="month" onchange="updateDays()">
+                            <option value="01">فروردین</option>
+                            <option value="02">اردیبهشت</option>
+                            <option value="03">خرداد</option>
+                            <option value="04">تیر</option>
+                            <option value="05">مرداد</option>
+                            <option value="06">شهریور</option>
+                            <option value="07">مهر</option>
+                            <option value="08">آبان</option>
+                            <option value="09">آذر</option>
+                            <option value="10">دی</option>
+                            <option value="11">بهمن</option>
+                            <option value="12">اسفند</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="day"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="issueCert()">ثبت اطلاعات و تولید گواهی رسمی (PDF)</button>
+        
+        <div class="footer">
+            توسعه یافته توسط گروه <strong>نکسورین (Nexoryn)</strong>
+        </div>
+    </div>
+
+    <script>
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        // Function to force input to be Persian numbers only
+        function forcePersianNumbersInput(e) {
+            let input = e.target.value;
+            // First, convert any English or Arabic digits to Persian
+            input = input.replace(/\d/g, x => persianDigits[x]);
+            input = input.replace(/[٠-٩]/g, x => persianDigits[x.charCodeAt(0) - 1632]); // Convert Arabic to Persian
+            
+            // Remove any character that is NOT a Persian number
+            input = input.replace(/[^۰-۹]/g, '');
+            
+            if (e.target.value !== input) {
+                e.target.value = input;
+            }
+        }
+
+        document.querySelectorAll('.persian-num').forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\d/g, x => persianDigits[x]);
+            });
+        });
+
+        const idInput = document.getElementById('id');
+        const searchStatus = document.getElementById('search-status');
+
+        idInput.addEventListener('blur', async function() {
+            const studentId = this.value.trim();
+            if(!studentId) {
+                searchStatus.innerText = '';
+                return;
+            }
+
+            searchStatus.innerText = 'در حال جستجو...';
+            searchStatus.style.color = '#0056b3';
+
+            try {
+                const res = await fetch('/api/certificates/student/' + studentId);
+                const json = await res.json();
+                
+                if(json.found) {
+                    document.getElementById('name').value = json.data.student_name;
+                    document.getElementById('major').value = json.data.major;
+                    document.getElementById('degree').value = json.data.degree;
+                    
+                    searchStatus.innerText = '(سابقه یافت شد - تکمیل خودکار)';
+                    searchStatus.style.color = '#27ae60';
+                } else {
+                    searchStatus.innerText = '(دانشجوی جدید)';
+                    searchStatus.style.color = '#555';
+                }
+            } catch(e) {
+                searchStatus.innerText = '';
+            }
+        });
+
+        const yearSelect = document.getElementById('year');
+        const currentYear = 1405; 
+        for (let y = 1403; y <= 1415; y++) {
+            let option = document.createElement('option');
+            option.value = y;
+            option.text = y.toString().replace(/\d/g, x => persianDigits[x]);
+            if (y === currentYear) option.selected = true;
+            yearSelect.appendChild(option);
+        }
+
+        function updateDays() {
+            const monthSelect = document.getElementById('month');
+            const daySelect = document.getElementById('day');
+            const selectedMonth = parseInt(monthSelect.value);
+            let maxDays = (selectedMonth <= 6) ? 31 : 30;
+            daySelect.innerHTML = '';
+            for (let d = 1; d <= maxDays; d++) {
+                let option = document.createElement('option');
+                let dStr = d < 10 ? '0' + d : d.toString();
+                option.value = dStr;
+                option.text = dStr.replace(/\d/g, x => persianDigits[x]);
+                daySelect.appendChild(option);
+            }
+        }
+        updateDays();
+
+        async function issueCert() {
+            const year = document.getElementById('year').value;
+            const month = document.getElementById('month').value;
+            const day = document.getElementById('day').value;
+            const fullDatePersian = `${year}/${month}/${day}`.replace(/\d/g, x => persianDigits[x]);
+
+            const data = { 
+                studentName: document.getElementById('name').value,
+                studentId: document.getElementById('id').value,
+                degree: document.getElementById('degree').value,
+                major: document.getElementById('major').value,
+                organizationName: document.getElementById('organization').value,
+                issueDate: fullDatePersian 
+            };
+            
+            if(!data.studentName || !data.studentId || !data.major || !data.organizationName) {
+                alert("لطفاً تمامی فیلدها را به دقت تکمیل نمایید.");
+                return;
+            }
+
+            const res = await fetch('/api/certificates/issue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await res.json();
+            
+            if(res.ok) {
+                alert("گواهی با موفقیت صادر گردید.\nکد پیگیری: " + json.hash);
+            } else {
+                alert("خطا در صدور گواهی: " + (json.error || "نامشخص"));
+            }
+        }
+    </script>
+</body>
+</html>

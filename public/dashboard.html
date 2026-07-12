@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد نظارتی | سامانه گواهی اشتغال به تحصیل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #002D62; --surface: #FFFFFF; --bg: #F1F5F9; --text-main: #0F172A; --text-muted: #64748B; --border: #E2E8F0; --radius: 8px; }
+        body { font-family: 'Vazirmatn', sans-serif; background: var(--bg); margin: 0; padding: 32px 24px; color: var(--text-main); }
+        .wrapper { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; background: var(--surface); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .header h1 { margin: 0; font-size: 20px; color: var(--primary); }
+        .actions a { text-decoration: none; background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 4px; font-size: 13px; font-weight: bold; transition: 0.3s; margin-right: 10px;}
+        .actions a.secondary { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); }
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .kpi-card { background: var(--surface); padding: 32px 24px; border-radius: var(--radius); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: flex-start; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .kpi-title { font-size: 13px; color: var(--text-muted); font-weight: bold; }
+        .kpi-value { font-size: 32px; font-weight: 900; color: var(--primary); margin-top: 12px; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .panel h3 { margin: 0 0 24px 0; font-size: 16px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 14px 16px; text-align: right; border-bottom: 1px solid var(--border); }
+        th { background: #F8FAFC; color: var(--text-muted); font-weight: bold; }
+        tr:last-child td { border-bottom: none; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        .badge-VERIFY_SUCCESS { background: #DEF7EC; color: #03543F; }
+        .badge-VERIFY_FAIL_TAMPERED { background: #FDE8E8; color: #9B1C1C; }
+        .badge-VERIFY_FAIL_NOT_FOUND { background: #FEF3C7; color: #92400E; }
+        .badge-VERIFY_FAIL_INVALID_SIG { background: #FDE8E8; color: #9B1C1C; }
+        .footer { margin-top: 40px; font-size: 12px; color: var(--text-muted); text-align: center; }
+        @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .header { flex-direction: column; gap: 16px; align-items: flex-start; } .actions { display:flex; width: 100%; gap: 10px;} .actions a { flex:1; text-align:center; margin:0;} }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div>
+                <h1>داشبورد نظارتی و آمار سامانه</h1>
+                <span style="font-size:12px; color:var(--text-muted);">دانشگاه آزاد اسلامی - واحد یادگار امام (ره)</span>
+            </div>
+            <div class="actions">
+                <a href="/admin.html">صدور مدرک جدید</a>
+                <a href="/" class="secondary">بازگشت به پورتال</a>
+            </div>
+        </div>
+
+        <div class="kpi-row">
+            <div class="kpi-card" style="border-bottom: 3px solid var(--primary);">
+                <span class="kpi-title">مجموع مدارک صادر شده</span>
+                <span class="kpi-value" id="totalCerts">...</span>
+            </div>
+            <div class="kpi-card" style="border-bottom: 3px solid #03543F;">
+                <span class="kpi-title">تعداد استعلامات ثبتی</span>
+                <span class="kpi-value" id="totalVerifications" style="color:#03543F;">...</span>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="panel">
+                <h3>سوابق صدور گواهی</h3>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr><th>نام دانشجو</th><th>سازمان مقصد</th><th>تاریخ ثبت</th></tr></thead>
+                        <tbody id="recentCertsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>لاگ‌های امنیتی (Audit Log)</h3>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr><th>آدرس شبکه (IP)</th><th>نوع رویداد</th><th>زمان</th></tr></thead>
+                        <tbody id="recentLogsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            © تمامی حقوق این سایت متعلق به گروه توسعه نکسورین می‌باشد.
+        </div>
+    </div>
+
+    <script>
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        const enforcePersian = num => (num || '۰').toString().replace(/\d/g, x => persianDigits[x]);
+        const formatDate = dStr => dStr ? enforcePersian(new Date(dStr).toLocaleString('fa-IR', { hour:'2-digit', minute:'2-digit', year:'numeric', month:'2-digit', day:'2-digit' })) : '-';
+
+        const parseEventType = (type) => {
+            const map = {
+                'VERIFY_SUCCESS': 'استعلام موفق',
+                'VERIFY_FAIL_TAMPERED': 'محتوای مخدوش',
+                'VERIFY_FAIL_NOT_FOUND': 'شناسه ناموجود',
+                'VERIFY_FAIL_INVALID_SIG': 'امضای نامعتبر'
+            };
+            return map[type] || type;
+        };
+
+        async function initDashboard() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                
+                document.getElementById('totalCerts').innerText = enforcePersian(data.totalCerts);
+                document.getElementById('totalVerifications').innerText = enforcePersian(data.totalVerifications);
+
+                const certTbody = document.getElementById('recentCertsTable');
+                if (data.recentCerts && data.recentCerts.length > 0) {
+                    certTbody.innerHTML = data.recentCerts.map(c => `<tr><td>${c.student_name}</td><td>${c.organization}</td><td>${enforcePersian(c.issue_date)}</td></tr>`).join('');
+                } else {
+                    certTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748B;">داده‌ای برای نمایش موجود نیست.</td></tr>`;
+                }
+
+                const logTbody = document.getElementById('recentLogsTable');
+                if (data.recentLogs && data.recentLogs.length > 0) {
+                    logTbody.innerHTML = data.recentLogs.map(l => `<tr><td dir="ltr" style="text-align:right">${l.ip_address}</td><td><span class="badge badge-${l.action_type}">${parseEventType(l.action_type)}</span></td><td>${formatDate(l.created_at)}</td></tr>`).join('');
+                } else {
+                    logTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748B;">لاگ سیستمی ثبت نشده است.</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Dashboard initialization failed");
+            }
+        }
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>

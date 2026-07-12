@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  nexoryn-app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=nexoryn_enterprise_secure_key_2026
+    volumes:
+      - ./database:/usr/src/app/database
+      - ./keys:/usr/src/app/keys
+      - ./public/assets:/usr/src/app/public/assets
+    restart: unless-stopped

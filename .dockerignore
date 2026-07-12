@@ -1,0 +1,6 @@
+﻿node_modules
+npm-debug.log
+.env
+database/nexoryn.sqlite
+keys/private.pem
+keys/public.pem

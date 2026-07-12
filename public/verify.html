@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استعلام اصالت | سامانه گواهی اشتغال به تحصیل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #002D62; --surface: #FFFFFF; --bg: #F8FAFC; --text-main: #0F172A; --text-muted: #64748B; --border: #E2E8F0; --radius: 8px; }
+        body { font-family: 'Vazirmatn', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .card { background: var(--surface); width: 100%; max-width: 500px; border-radius: var(--radius); padding: 40px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-top: 4px solid var(--primary); box-sizing: border-box; }
+        .logo { width: 80px; display: block; margin: 0 auto 24px auto; }
+        h1 { color: var(--primary); font-size: 20px; text-align: center; margin: 0 0 8px 0; }
+        p { text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 32px; }
+        label { display: block; font-size: 12px; font-weight: bold; color: var(--text-main); margin-bottom: 8px; }
+        input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; font-family: monospace; text-align: center; direction: ltr; box-sizing: border-box; transition: border 0.3s ease; background: var(--bg); color: var(--text-main); }
+        input:focus { outline: none; border-color: var(--primary); }
+        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; font-family: inherit; margin-top: 16px; cursor: pointer; transition: 0.3s ease; }
+        button:hover { background: #001f44; }
+        #res { display: none; margin-top: 32px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+        .res-head { padding: 14px; text-align: center; font-weight: bold; font-size: 14px; }
+        .res-body { padding: 20px; background: var(--surface); }
+        .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--border); font-size: 13px; }
+        .row:last-child { border: none; padding-bottom: 0; }
+        .lbl { color: var(--text-muted); }
+        .val { font-weight: bold; color: var(--text-main); }
+        .st-ok .res-head { background: #DEF7EC; color: #03543F; border-bottom: 1px solid #31C48D; }
+        .st-err .res-head { background: #FDE8E8; color: #9B1C1C; border-bottom: 1px solid #F98080; }
+        .footer { margin-top: 40px; font-size: 11px; color: var(--text-muted); text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="/assets/images.png" class="logo" onerror="this.style.display='none'">
+        <h1>درگاه استعلام مدارک سازمانی</h1>
+        <p>دانشگاه آزاد اسلامی - واحد یادگار امام (ره)</p>
+        
+        <label>توکن امنیتی (مندرجات QR Code)</label>
+        <input id="tokenInput" autocomplete="off" placeholder="کد هش شده را وارد نمایید">
+        <button id="verifyBtn" onclick="verifyCertificate()">بررسی اصالت مدرک</button>
+        
+        <div id="res">
+            <div class="res-head" id="rHead"></div>
+            <div class="res-body" id="rBody"></div>
+        </div>
+
+        <div class="footer">
+            © تمامی حقوق این سایت متعلق به گروه توسعه نکسورین می‌باشد.
+        </div>
+    </div>
+
+    <script>
+        async function verifyCertificate() {
+            const token = document.getElementById('tokenInput').value.trim();
+            if(!token) return;
+            
+            const btn = document.getElementById('verifyBtn');
+            const resBox = document.getElementById('res');
+            const rh = document.getElementById('rHead');
+            const rb = document.getElementById('rBody');
+            
+            btn.disabled = true;
+            btn.innerText = 'در حال پردازش سیستمی...';
+            resBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                
+                const json = await response.json();
+                resBox.style.display = 'block';
+                
+                if (response.ok && json.valid) {
+                    resBox.className = 'st-ok'; 
+                    rh.innerText = 'تاییدیه اصالت صادر گردید';
+                    rb.innerHTML = `
+                        <div class="row"><span class="lbl">نام دانشجو</span><span class="val">${json.data.studentName}</span></div>
+                        <div class="row"><span class="lbl">شماره دانشجویی</span><span class="val">${json.data.studentId}</span></div>
+                        <div class="row"><span class="lbl">مقطع و رشته</span><span class="val">${json.data.degree} - ${json.data.major}</span></div>
+                        <div class="row"><span class="lbl">سازمان مقصد</span><span class="val">${json.data.organization}</span></div>
+                        <div class="row"><span class="lbl">تاریخ صدور</span><span class="val">${json.data.issueDate}</span></div>
+                    `;
+                } else {
+                    resBox.className = 'st-err'; 
+                    rh.innerText = 'مدرک نامعتبر تشخیص داده شد';
+                    rb.innerHTML = `<div style="text-align:center; font-size:13px; color:#9B1C1C;">${json.reason || 'محتوای گواهی مخدوش شده یا در پایگاه داده موجود نمی‌باشد.'}</div>`;
+                }
+            } catch (e) {
+                resBox.style.display = 'block';
+                resBox.className = 'st-err';
+                rh.innerText = 'خطای ارتباطی';
+                rb.innerHTML = `<div style="text-align:center; font-size:13px; color:#9B1C1C;">ارتباط با سرور برقرار نشد.</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'بررسی اصالت مدرک';
+            }
+        }
+    </script>
+</body>
+</html>
