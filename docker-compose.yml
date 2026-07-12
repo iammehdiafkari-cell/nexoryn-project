@@ -1,8 +1,9 @@
 version: '3.8'
 
 services:
-  nexoryn-app:
+  nexoryn-core:
     build: .
+    container_name: nexoryn_engine
     ports:
       - "3000:3000"
     environment:
@@ -13,4 +14,4 @@ services:
       - ./database:/usr/src/app/database
       - ./keys:/usr/src/app/keys
       - ./public/assets:/usr/src/app/public/assets
-    restart: unless-stopped
+    restart: always

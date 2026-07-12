@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پورتال مدیریت ارشد | سامانه نکسورین</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #002D62; --surface: #FFFFFF; --bg: #F8FAFC; --text-main: #0F172A; --text-muted: #64748B; --border: #E2E8F0; --radius: 8px; }
+        body { font-family: 'Vazirmatn', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: var(--surface); width: 100%; max-width: 550px; border-radius: var(--radius); padding: 40px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-top: 4px solid #9B1C1C; box-sizing: border-box; }
+        .header { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
+        h1 { color: #9B1C1C; font-size: 20px; margin: 0 0 8px 0; }
+        p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+        .upload-area { border: 2px dashed var(--border); padding: 30px; text-align: center; border-radius: var(--radius); background: var(--bg); margin-bottom: 20px; transition: border 0.3s; }
+        .upload-area:hover { border-color: var(--primary); }
+        input[type="file"] { display: none; }
+        label.file-label { background: var(--primary); color: white; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: inline-block; margin-top: 10px; }
+        #fileName { display: block; margin-top: 15px; font-size: 13px; color: var(--text-main); font-weight: bold; }
+        button { width: 100%; padding: 14px; background: #9B1C1C; color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #7A1616; }
+        #status { text-align: center; font-size: 13px; margin-top: 15px; font-weight: bold; }
+        .nav-back { display: block; text-align: center; margin-top: 25px; font-size: 13px; color: var(--text-muted); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h1>پورتال امنیتی مدیریت ارشد</h1>
+            <p>این بخش منحصراً جهت بارگذاری و به‌روزرسانی امضای دیجیتال مقام مسئول طراحی شده است و دسترسی به آن برای کارشناسان مجاز نمی‌باشد.</p>
+        </div>
+        
+        <div class="upload-area">
+            <span style="font-size: 30px; display: block; margin-bottom: 10px;">✍️</span>
+            <span style="font-size: 13px; color: var(--text-muted);">فایل تصویر امضا (PNG بدون پس‌زمینه) را انتخاب کنید</span>
+            <input type="file" id="sigFile" accept="image/png, image/jpeg" onchange="updateFileName()">
+            <label for="sigFile" class="file-label">انتخاب فایل از سیستم</label>
+            <span id="fileName"></span>
+        </div>
+        
+        <button id="uploadBtn" onclick="uploadSig()">ثبت و رمزنگاری امضا در هسته سیستم</button>
+        <div id="status"></div>
+        <a href="/" class="nav-back">← بازگشت به پورتال مرکزی</a>
+    </div>
+
+    <script>
+        function updateFileName() {
+            const input = document.getElementById('sigFile');
+            const nameDisplay = document.getElementById('fileName');
+            nameDisplay.innerText = input.files.length > 0 ? input.files[0].name : '';
+        }
+
+        async function uploadSig() {
+            const fileInput = document.getElementById('sigFile');
+            const statusBox = document.getElementById('status');
+            const btn = document.getElementById('uploadBtn');
+
+            if (fileInput.files.length === 0) {
+                statusBox.style.color = '#9B1C1C';
+                statusBox.innerText = 'انتخاب فایل تصویر الزامی است.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'در حال ارتباط با هسته مرکزی...';
+            statusBox.innerText = '';
+
+            const formData = new FormData();
+            formData.append('signature', fileInput.files[0]);
+
+            try {
+                const res = await fetch('/api/upload-signature', { method: 'POST', body: formData });
+                const json = await res.json();
+                
+                if (res.ok) {
+                    statusBox.style.color = '#03543F';
+                    statusBox.innerText = 'امضای دیجیتال با موفقیت در سیستم ثبت و فعال گردید.';
+                    fileInput.value = '';
+                    document.getElementById('fileName').innerText = '';
+                } else {
+                    statusBox.style.color = '#9B1C1C';
+                    statusBox.innerText = json.error || 'خطا در پردازش فایل.';
+                }
+            } catch (e) {
+                statusBox.style.color = '#9B1C1C';
+                statusBox.innerText = 'خطای ارتباطی با سرور پایگاه داده.';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'ثبت و رمزنگاری امضا در هسته سیستم';
+            }
+        }
+    </script>
+</body>
+</html>
